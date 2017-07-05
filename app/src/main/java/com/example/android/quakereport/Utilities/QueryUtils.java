@@ -1,7 +1,9 @@
-package com.example.android.quakereport;
+package com.example.android.quakereport.Utilities;
 
 import android.text.TextUtils;
 import android.util.Log;
+
+import com.example.android.quakereport.Models.Book;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,10 +42,12 @@ public class QueryUtils {
      * Return a list of {@link Book} objects that has been built up from
      * parsing the given JSON response.
      */
-    public static List<Book> fetchEarthquakeData(String requestUrl) {
+    public static List<Book> fetchBookData(String requestUrl) {
+
+        final int SLEEPING_TIME = 2000;
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(SLEEPING_TIME);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -102,7 +106,7 @@ public class QueryUtils {
                 Log.e(LOG_TAG, "Error response code: " + urlConnection.getResponseCode());
             }
         } catch (IOException e) {
-            Log.e(LOG_TAG, "Problem retrieving the earthquake JSON results.", e);
+            Log.e(LOG_TAG, "Problem retrieving the book JSON results.", e);
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -139,12 +143,11 @@ public class QueryUtils {
      * Return a list of {@link Book} objects that has been built up from
      * parsing the given JSON response.
      */
-    private static List<Book> extractFeatureFromJson(String earthquakeJSON) {
+    private static List<Book> extractFeatureFromJson(String bookJSON) {
         // If the JSON string is empty or null, then return early.
-        if (TextUtils.isEmpty(earthquakeJSON)) {
+        if (TextUtils.isEmpty(bookJSON)) {
             return null;
         }
-
         // Create an empty ArrayList that we can start adding books to
         List<Book> books = new ArrayList<>();
 
@@ -152,32 +155,26 @@ public class QueryUtils {
         // is formatted, a JSONException exception object will be thrown.
         // Catch the exception so the app doesn't crash, and print the error message to the logs.
         try {
-
             // Create a JSONObject from the JSON response string
-            JSONObject baseJsonResponse = new JSONObject(earthquakeJSON);
+            JSONObject baseJsonResponse = new JSONObject(bookJSON);
             JSONArray jsonArray = baseJsonResponse.getJSONArray("items");
-
             for (int i = 0; i < jsonArray.length(); i++) {
-
-                JSONObject currentEarthquake = jsonArray.getJSONObject(i);
-                JSONObject bookListingInfo = currentEarthquake.getJSONObject("volumeInfo");
+                JSONObject curretBook = jsonArray.getJSONObject(i);
+                JSONObject bookListingInfo = curretBook.getJSONObject("volumeInfo");
                 String title = bookListingInfo.getString("title");
                 JSONArray authorArray = bookListingInfo.getJSONArray("authors");
-                for (int x = 0; x < authorArray.length(); x++) {
-
-                    String author = authorArray.getString(x);
+               for (int x = 0; x < authorArray.length(); x++) {
+                   String author = authorArray.getString(0);
                     Book book = new Book(author, title);
                     books.add(book);
                 }
             }
-
         } catch (JSONException e) {
             // If an error is thrown when executing any of the above statements in the "try" block,
             // catch the exception here, so the app doesn't crash. Print a log message
             // with the message from the exception.
             Log.e("QueryUtils", "Problem parsing the earthquake JSON results", e);
         }
-
         // Return the list of books
         return books;
     }

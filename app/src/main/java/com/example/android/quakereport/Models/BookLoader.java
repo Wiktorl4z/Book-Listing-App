@@ -1,27 +1,29 @@
-package com.example.android.quakereport;
+package com.example.android.quakereport.Models;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
+import com.example.android.quakereport.Utilities.QueryUtils;
+
 import java.util.List;
 
-public class EarthquakeLoader  extends AsyncTaskLoader<List<Book>> {
+public class BookLoader extends AsyncTaskLoader<List<Book>> {
 
     /** Tag for log messages */
-    private static final String LOG_TAG = EarthquakeLoader.class.getName();
+    private static final String LOG_TAG = BookLoader.class.getName();
 
     /** Query URL */
     private String mUrl;
 
     /**
-     * Constructs a new {@link EarthquakeLoader}.
+     * Constructs a new {@link BookLoader}.
      *
      * @param context of the activity
      * @param url to load data from
      */
-    public EarthquakeLoader(Context context, String url) {
+    public BookLoader(Context context, String url) {
         super(context);
-        mUrl = url;
+        this.mUrl = url;
     }
 
     @Override
@@ -39,7 +41,7 @@ public class EarthquakeLoader  extends AsyncTaskLoader<List<Book>> {
         }
 
         // Perform the network request, parse the response, and extract a list of books.
-        List<Book> books = QueryUtils.fetchEarthquakeData(mUrl);
+        List<Book> books = QueryUtils.fetchBookData(mUrl);
         return books;
     }
 }

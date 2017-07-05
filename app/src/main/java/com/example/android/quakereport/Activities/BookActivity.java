@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.quakereport;
+package com.example.android.quakereport.Activities;
 
 import android.app.LoaderManager;
 import android.content.Context;
@@ -24,24 +24,60 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.android.quakereport.Adapters.Adapters;
+import com.example.android.quakereport.Models.Book;
+import com.example.android.quakereport.Models.BookLoader;
+import com.example.android.quakereport.R;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EarthquakeActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>> {
+public class BookActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>> {
 
-    public static final String LOG_TAG = EarthquakeActivity.class.getName();
 
-    private BookAdapter mAdapter;
+    /**
+     * Tag for the log messages
+     */
+    public static final String LOG_TAG = BookActivity.class.getName();
+
+    /**
+     * Adapter for the list of books
+     */
+    private Adapters.BookAdapter mAdapter;
+
+    private String mUrl = "";
+
+    /**
+     * TextView that is displayed when the list is empty
+     */
     private TextView mEmptyStateTextView;
 
-    private static final String USGS_REQUEST_URL =
-            "https://www.googleapis.com/books/v1/volumes?q=search";
+    /**
+     * URL for books data from Google Books API
+     */
+    private static final String GOOGLE_BOOK_API_URL =
+            "https://www.googleapis.com/books/v1/volumes?q=";
 
-
+    /**
+     * Constant value for the book loader ID. We can choose any integer.
+     * This really only comes into play if you're using multiple loaders.
+     */
     private static final int BOOK_LOADER_ID = 1;
+
+    /**
+     * Search field
+     */
+    private EditText mEditText;
+
+    /**
+     * Search button
+     */
+    private Button mSearchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,20 +90,62 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
 
         mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
         bookListView.setEmptyView(mEmptyStateTextView);
-        // Create a new adapter that takes an empty list of book as input
-        mAdapter = new BookAdapter(this, new ArrayList<Book>());
+
+        // Create a new adapter that takes an empty list of books as input
+        mAdapter = new Adapters.BookAdapter(this, new ArrayList<Book>());
 
         // Set the adapter on the {@link ListView}
         // so the list can be populated in the user interface
         bookListView.setAdapter(mAdapter);
 
+        //  Fine a reference to edit text field
+        mEditText = (EditText) findViewById(R.id.edit_text);
+
+        //  Fine a reference to search button field
+        mSearchButton = (Button) findViewById(R.id.search_button);
+
 
         // Get a reference to the ConnectivityManager to check state of network connectivity
-        ConnectivityManager connMgr = (ConnectivityManager)
+        final ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        checkConnection(connMgr);
+
+        mSearchButton.setOnClickListener(new View.OnClickListener()
+
+                                         {
+                                             @Override
+                                             public void onClick(View view) {
+                                                 checkConnection(connMgr);
+                                                 getUrlForHttpRequest();
+
+                                                 getLoaderManager().restartLoader(BOOK_LOADER_ID, null, BookActivity.this);
+
+                                                 Log.i(LOG_TAG, "Search value: " + getUrlForHttpRequest());
+
+                                             }
+                                         }
+        );
+    }
+
+    private String getSearchInput() {
+        return mEditText.getText().toString();
+    }
+
+    private String getUrlForHttpRequest() {
+       String formatSearchInput = getSearchInput().trim().replaceAll("\\s+", "+");
+
+
+        mUrl = GOOGLE_BOOK_API_URL + formatSearchInput;
+        Log.i(LOG_TAG, "Search value: " + mUrl);
+        return mUrl;
+
+    }
+
+
+    public void checkConnection(ConnectivityManager connectivityManager) {
         // Get details on the currently active default data network
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
 
         // If there is a network connection, fetch data
         if (networkInfo != null && networkInfo.isConnected()) {
@@ -92,7 +170,7 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderManag
     @Override
     public Loader<List<Book>> onCreateLoader(int i, Bundle bundle) {
         // Create a new loader for the given URL
-        return new EarthquakeLoader(this, USGS_REQUEST_URL);
+        return new BookLoader(this, mUrl);
     }
 
     @Override
