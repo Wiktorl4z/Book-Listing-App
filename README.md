@@ -1,11 +1,10 @@
 Book List App
 ===================================
 
-This app displays a list of recent books in the world
-from the U.S. Geological Survey (USGS) organization.
+This app displays a list of books from Google API.
 
 Used in a Udacity course in the Beginning Android Nanodegree.
-Parsing side: https://www.googleapis.com/books/v1/volumes?q=search+%22
+Parsing side:  https://www.googleapis.com/books/v1/volumes?q=
 
 Pre-requisites
 --------------
