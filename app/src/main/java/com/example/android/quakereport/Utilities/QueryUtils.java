@@ -151,6 +151,7 @@ public class QueryUtils {
         // Create an empty ArrayList that we can start adding books to
         List<Book> books = new ArrayList<>();
 
+
         // Try to parse the JSON response string. If there's a problem with the way the JSON
         // is formatted, a JSONException exception object will be thrown.
         // Catch the exception so the app doesn't crash, and print the error message to the logs.
@@ -159,23 +160,37 @@ public class QueryUtils {
             JSONObject baseJsonResponse = new JSONObject(bookJSON);
             JSONArray jsonArray = baseJsonResponse.getJSONArray("items");
             for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject curretBook = jsonArray.getJSONObject(i);
-                JSONObject bookListingInfo = curretBook.getJSONObject("volumeInfo");
+
+                JSONObject currentBook = jsonArray.getJSONObject(i);
+                JSONObject bookListingInfo = currentBook.getJSONObject("volumeInfo");
                 String title = bookListingInfo.getString("title");
-                JSONArray authorArray = bookListingInfo.getJSONArray("authors");
-               for (int x = 0; x < authorArray.length(); x++) {
-                   String author = authorArray.getString(0);
-                    Book book = new Book(author, title);
-                    books.add(book);
+                String author;
+                if (bookListingInfo.has("authors")) {
+                    JSONArray authors = bookListingInfo.getJSONArray("authors");
+                    if (!bookListingInfo.isNull("authors")) {
+                        // forcing to get first element
+                        author = (String) authors.get(0);
+                    } else {
+                        // assign info about missing info about author
+                        author = "*** unknown author ***";
+                    }
+                } else {
+                    author = "No author information";
                 }
+
+                Book book = new Book(author, title);
+                books.add(book);
             }
         } catch (JSONException e) {
+            e.printStackTrace();
             // If an error is thrown when executing any of the above statements in the "try" block,
             // catch the exception here, so the app doesn't crash. Print a log message
             // with the message from the exception.
+
             Log.e("QueryUtils", "Problem parsing the earthquake JSON results", e);
         }
         // Return the list of books
         return books;
     }
 }
+
