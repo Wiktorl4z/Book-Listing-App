@@ -12,10 +12,6 @@ import com.example.android.quakereport.R;
 
 import java.util.ArrayList;
 
-/**
- * Created by l4z on 05.07.2017.
- */
-
 public class Adapters {
     public static class BookAdapter extends ArrayAdapter<Book> {
 
@@ -37,7 +33,7 @@ public class Adapters {
                         R.layout.moj_layout, parent, false);
             }
             Book currentItem = getItem(position);
-            String authorName = "by" + currentItem.getAuthor();
+            String authorName = currentItem.getAuthor();
             String title = currentItem.getTitle();
             TextView contactView1 = (TextView) listItemView.findViewById(R.id.author);
             contactView1.setText(authorName);

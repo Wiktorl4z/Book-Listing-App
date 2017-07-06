@@ -18,4 +18,6 @@
     <string name="near_the">Near the</string>
     <string name="no_books_found">No books found.</string>
     <string name="no_internet_connection">No internet connection.</string>
+    <string name="write_title_or_author">Write title or author</string>
+    <string name="search">search</string>
 </resources>
