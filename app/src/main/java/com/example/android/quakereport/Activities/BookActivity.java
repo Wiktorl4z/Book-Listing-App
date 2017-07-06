@@ -82,7 +82,7 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.earthquake_activity);
+        setContentView(R.layout.book_activity);
 
 
         // Find a reference to the {@link ListView} in the layout
@@ -111,18 +111,16 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
 
         checkConnection(connMgr);
 
-        mSearchButton.setOnClickListener(new View.OnClickListener()
-
-                                         {
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
                                              @Override
                                              public void onClick(View view) {
                                                  checkConnection(connMgr);
+                                                 mAdapter.clear();
                                                  getUrlForHttpRequest();
 
                                                  getLoaderManager().restartLoader(BOOK_LOADER_ID, null, BookActivity.this);
 
                                                  Log.i(LOG_TAG, "Search value: " + getUrlForHttpRequest());
-
                                              }
                                          }
         );
@@ -133,7 +131,7 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
     }
 
     private String getUrlForHttpRequest() {
-       String formatSearchInput = getSearchInput().trim().replaceAll("\\s+", "+");
+        String formatSearchInput = getSearchInput().trim().replaceAll("\\s+", "+");
 
 
         mUrl = GOOGLE_BOOK_API_URL + formatSearchInput;
