@@ -163,7 +163,12 @@ public class QueryUtils {
 
                 JSONObject currentBook = jsonArray.getJSONObject(i);
                 JSONObject bookListingInfo = currentBook.getJSONObject("volumeInfo");
-                String title = bookListingInfo.getString("title");
+                String title;
+                if (bookListingInfo.has("title")) {
+                    title = bookListingInfo.getString("title");
+                } else {
+                    title = "No title informations";
+                }
                 String author;
                 if (bookListingInfo.has("authors")) {
                     JSONArray authors = bookListingInfo.getJSONArray("authors");
@@ -172,12 +177,11 @@ public class QueryUtils {
                         author = (String) authors.get(0);
                     } else {
                         // assign info about missing info about author
-                        author = "*** unknown author ***";
+                        author = "Unknown author";
                     }
                 } else {
                     author = "No author information";
                 }
-
                 Book book = new Book(author, title);
                 books.add(book);
             }

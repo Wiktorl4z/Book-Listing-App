@@ -39,7 +39,6 @@ import java.util.List;
 
 public class BookActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>> {
 
-
     /**
      * Tag for the log messages
      */
@@ -74,6 +73,8 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
      */
     private EditText mEditText;
 
+    private boolean isConnected;
+
     /**
      * Search button
      */
@@ -83,7 +84,6 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.book_activity);
-
 
         // Find a reference to the {@link ListView} in the layout
         ListView bookListView = (ListView) findViewById(R.id.list);
@@ -115,12 +115,18 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
                                              @Override
                                              public void onClick(View view) {
                                                  checkConnection(connMgr);
-                                                 mAdapter.clear();
-                                                 getUrlForHttpRequest();
+                                                 if (isConnected) {
+                                                     getUrlForHttpRequest();
 
-                                                 getLoaderManager().restartLoader(BOOK_LOADER_ID, null, BookActivity.this);
+                                                     getLoaderManager().restartLoader(BOOK_LOADER_ID, null, BookActivity.this);
 
-                                                 Log.i(LOG_TAG, "Search value: " + getUrlForHttpRequest());
+                                                     Log.i(LOG_TAG, "Search value: " + getUrlForHttpRequest());
+                                                 } else {
+                                                     mAdapter.clear();
+                                                     mEmptyStateTextView.setVisibility(View.VISIBLE);
+                                                     // Update empty state with no connection error message
+                                                     mEmptyStateTextView.setText(R.string.no_internet_connection);
+                                                 }
                                              }
                                          }
         );
@@ -133,11 +139,9 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
     private String getUrlForHttpRequest() {
         String formatSearchInput = getSearchInput().trim().replaceAll("\\s+", "+");
 
-
         mUrl = GOOGLE_BOOK_API_URL + formatSearchInput;
         Log.i(LOG_TAG, "Search value: " + mUrl);
         return mUrl;
-
     }
 
 
@@ -154,7 +158,9 @@ public class BookActivity extends AppCompatActivity implements LoaderManager.Loa
             // the bundle. Pass in this activity for the LoaderCallbacks parameter (which is valid
             // because this activity implements the LoaderCallbacks interface).
             loaderManager.initLoader(BOOK_LOADER_ID, null, this);
+            isConnected = true;
         } else {
+            isConnected = false;
             // Otherwise, display error
             // First, hide loading indicator so error message will be visible
             View loadingIndicator = findViewById(R.id.loading_indicator);
