@@ -151,13 +151,16 @@ public class QueryUtils {
         // Create an empty ArrayList that we can start adding books to
         List<Book> books = new ArrayList<>();
 
-
         // Try to parse the JSON response string. If there's a problem with the way the JSON
         // is formatted, a JSONException exception object will be thrown.
         // Catch the exception so the app doesn't crash, and print the error message to the logs.
         try {
             // Create a JSONObject from the JSON response string
             JSONObject baseJsonResponse = new JSONObject(bookJSON);
+            if (!baseJsonResponse.has("items")) {
+                return books;
+            }
+
             JSONArray jsonArray = baseJsonResponse.getJSONArray("items");
             for (int i = 0; i < jsonArray.length(); i++) {
 
@@ -185,6 +188,7 @@ public class QueryUtils {
                 Book book = new Book(author, title);
                 books.add(book);
             }
+
         } catch (JSONException e) {
             e.printStackTrace();
             // If an error is thrown when executing any of the above statements in the "try" block,
